@@ -10,5 +10,3 @@ RUN chmod a+x /ecs-deploy
 COPY test.bats /test.bats
 COPY run-tests.sh /run-tests.sh
 RUN chmod a+x /run-tests.sh
-
-ENTRYPOINT ["/ecs-deploy"]
