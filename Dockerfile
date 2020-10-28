@@ -1,7 +1,7 @@
-FROM alpine:3.5
+FROM alpine:3.12
 
 # Install packges needed
-RUN apk --no-cache add ca-certificates curl bash jq py2-pip && \
+RUN apk --no-cache add ca-certificates curl bash jq py3-pip && \
     pip install awscli
 
 COPY ecs-deploy /ecs-deploy
