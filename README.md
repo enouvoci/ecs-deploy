@@ -37,11 +37,17 @@ Usage
                                       Note: This number must be 1 or higher (i.e. keep only the current revision ACTIVE).
                                             Max definitions causes all task revisions not matching criteria to be deregistered, even if they're created manually.
                                             Script will only perform deregistration if deployment succeeds.
+        --task-definition-file        File used as task definition to deploy
         --enable-rollback             Rollback task definition if new version is not running before TIMEOUT
         --use-latest-task-def         Will use the most recently created task definition as it's base, rather than the last used.
         --force-new-deployment        Force a new deployment of the service. Default is false.
         --skip-deployments-check      Skip deployments check for services that take too long to drain old tasks
         --run-task                    Run created task now. If you set this, service-name are not needed.
+        --wait-for-success            Wait for task execution to complete and to receive the exitCode 0.
+        --launch-type                 The launch type on which to run your task. (https://docs.aws.amazon.com/cli/latest/reference/ecs/run-task.html)
+        --network-configuration       The network configuration for the task. This parameter is required for task definitions that use
+                                          the awsvpc network mode to receive their own elastic network interface, and it is not supported
+                                          for other network modes. (https://docs.aws.amazon.com/cli/latest/reference/ecs/run-task.html)
         -v | --verbose                Verbose output
              --version                Display the version
 
@@ -217,3 +223,33 @@ AWS APIs to perform actions. So for now any parsing/processing of data locally
 is tested.
 
 Any new functionality and pull requests should come with tests as well (if possible).
+
+Github Actions Support
+-------
+Github Actions support is available.  Add a code block similar to that below to your actions yaml file.  Parameters are passed to the ecs-deploy tool under 'with' section. For each parameter, the parameter name followed by _cmd must be called with the appropriate parameter option like '--aws-access-key' in addition to supplying the parameter aws_access_key with the appropriate value.
+```
+deploy_to_ecs:
+  name: 'Deploy updated container image via blue/green deployment to ECS service.'
+  runs-on: ubuntu-18.04
+  steps:
+  - uses: silinternational/ecs-deploy@master
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: 'us-east-1'
+    with:
+      aws_access_key_cmd: '--aws-access-key'
+      aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_key_cmd: '--aws-secret-key'
+      aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      cluster_cmd: '--cluster'
+      cluster: 'cluster-name'
+      image_cmd: '--image'
+      image: '{amazon_id}.dkr.ecr.us-east-1.amazonaws.com/cluster-name/image_name:latest'
+      region_cmd: '--region'
+      region: 'us-east-1'
+      service_name_cmd: '--service-name'
+      service_name: 'aws-service-name'
+      timeout_cmd: '--timeout'
+      timeout: '360'
+```
